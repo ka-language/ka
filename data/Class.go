@@ -1,7 +1,9 @@
 package data
 
 import (
+	"github.com/emirpasic/gods/maps/linkedhashmap"
 	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
@@ -9,7 +11,7 @@ import (
 type Class struct {
 	Name      string
 	SType     *types.StructType
-	Instance  map[string]*Variable
+	Instance  *linkedhashmap.Map
 	Static    map[string]*Variable
 	Construct *ir.Block
 
@@ -28,14 +30,14 @@ func (c *Class) LLVal(block *ir.Block) value.Value {
 	return nil
 }
 
+func (c *Class) Default() constant.Constant {
+	return constant.NewNull(types.NewPointer(c.SType))
+}
+
 func (c *Class) Type() types.Type {
 	return c.SType
 }
 
-func ClassTypeDefault(t types.Type) string {
-	return "class " + t.Name()
-}
-
 func (c *Class) TypeString() string {
-	return ClassTypeDefault(c.SType)
+	return "class " + c.SType.Name()
 }

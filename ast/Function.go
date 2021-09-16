@@ -108,12 +108,8 @@ func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode,
 		if f.RetType == nil {
 			fblock.NewRet(nil)
 		}
-
-		return data.NewFunc(rf)
 	}
 
 	//if no body was provided, the function was being used as a type
-	ft := data.NewType(rf.Type())
-	ft.SetTypeName("func") //set the specific typename of the type
-	return ft
+	return data.NewFunc(rf)
 }

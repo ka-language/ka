@@ -20,13 +20,13 @@ var processor = varprocessor.NewProcessor()
 //has types to begin with, but it can store anything
 //types are variables in tusk's parser so we need to add the default ones in like so
 var prevars = map[string]data.Value{
-	"i128": data.NewType(types.I128),
-	"i64":  data.NewType(types.I64),
-	"i32":  data.NewType(types.I32),
-	"i16":  data.NewType(types.I16),
-	"i8":   data.NewType(types.I8),
-	"f64":  data.NewType(types.Double),
-	"f32":  data.NewType(types.Float),
+	"i128": data.NewPrimative(types.I128),
+	"i64":  data.NewPrimative(types.I64),
+	"i32":  data.NewPrimative(types.I32),
+	"i16":  data.NewPrimative(types.I16),
+	"i8":   data.NewPrimative(types.I8),
+	"f64":  data.NewPrimative(types.Double),
+	"f32":  data.NewPrimative(types.Float),
 }
 
 func Compile(prog *initialize.Program, outfile string) {
@@ -89,7 +89,8 @@ func Compile(prog *initialize.Program, outfile string) {
 			cclasses[vv] = tc
 
 			if v.Parent() == nil {
-				prevars[vv.Name] = tc
+				processor.AddPreDecl(vv.Name)
+				compiler.AddVar(vv.Name, data.NewVariable(tc, tc, true))
 			}
 		}
 
@@ -98,7 +99,7 @@ func Compile(prog *initialize.Program, outfile string) {
 	//add all the prevars as variables to the compiler
 	for k, v := range prevars {
 		processor.AddPreDecl(k)
-		compiler.AddVar(k, data.NewVariable(v, data.NewType(v.Type()), true))
+		compiler.AddVar(k, data.NewVariable(v, data.NewPrimative(v.Type()), true))
 	}
 
 	//process all the variables
@@ -118,6 +119,20 @@ func Compile(prog *initialize.Program, outfile string) {
 		}
 	}
 
+	//init the fields in each class before compiling as well
+	for ic, c := range cclasses {
+
+		for _, v := range ic.Globals {
+
+			if !v.IsStatic {
+				//must be an instance to be included in the struct type
+				c.SType.Fields = append(c.SType.Fields, v.Value.Type.Group.Compile(&compiler, c, v.Value.Type, c.Construct).Type())
+			}
+
+		}
+
+	}
+
 	for ic, c := range cclasses {
 
 		var newAlloc = c.Construct.NewAlloca(c.SType)
@@ -132,10 +147,6 @@ func Compile(prog *initialize.Program, outfile string) {
 				v.Value.CompileGlobal(&compiler, c, c.Construct)
 			}
 
-		}
-
-		for _, v := range c.Instance {
-			c.SType.Fields = append(c.SType.Fields, v.Type())
 		}
 
 		if ic.Constructor != nil {

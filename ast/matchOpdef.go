@@ -10,6 +10,16 @@ import (
 //this function is able to match the typename to the opdef's typename, which could be a keyword
 func matchOpdef(val data.Value, opdef string) bool {
 
+	//detect "any"
+	if opdef == "*" {
+		return true
+	}
+
+	if opdef == "ptr" && strings.HasSuffix(val.TypeString(), "*") {
+		//if the type ends with *, it's a pointer
+		return true
+	}
+
 	if opdef == "class" && strings.HasPrefix(val.TypeString(), "class ") {
 		return true
 	}

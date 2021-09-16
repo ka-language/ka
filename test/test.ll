@@ -1,6 +1,8 @@
 %tusk.string = type { i8*, i32 }
-%tuskclass.Main = type {}
+%tuskclass.Main = type { i32, i32 }
 
+@.Main_b = global i32 0
+@.Main_c = global i32 0
 @.Main_main = global void ()* null
 
 define %tusk.string @tusk.newstring(i8* %sptr, i32 %slen) {
@@ -23,7 +25,8 @@ define void @_tusk_init() {
 define %tuskclass.Main @tuskclass.new.Main() {
 0:
 	%1 = alloca %tuskclass.Main
-	call void @tv_3()
+	store i32 2, i32* @.Main_b
+	store i32 33, i32* @.Main_c
 	%2 = load %tuskclass.Main, %tuskclass.Main* %1
 	ret %tuskclass.Main %2
 }
@@ -35,12 +38,10 @@ define void @tv_2() {
 	%1 = call %tuskclass.Main @tuskclass.new.Main()
 	%2 = alloca %tuskclass.Main
 	store %tuskclass.Main %1, %tuskclass.Main* %2
-	ret void
-}
-
-define void @tv_3() {
-0:
-	%1 = add i32 1, 1
+	%3 = getelementptr %tuskclass.Main, %tuskclass.Main* %2, i32 0, i32 0
+	store i32 3, i32* %3
+	%4 = getelementptr %tuskclass.Main, %tuskclass.Main* %2, i32 0, i32 1
+	store i32 33, i32* %4
 	ret void
 }
 

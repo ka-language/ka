@@ -2,6 +2,8 @@ package compiler
 
 import (
 	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/data"
@@ -35,10 +37,39 @@ func initDefaultOps(compiler *ast.Compiler) {
 
 	compiler.OperationStore.NewOperation(".", "class", "udvar", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
 
-		class := left.(*data.Class)
 		sub := right.(*data.UndeclaredVar).Name
 
-		return class.Static[sub]
+		switch class := left.(type) {
+		case *data.Class:
+			//accessing static portion of the class
+
+			return class.Static[sub]
+		case *data.Variable:
+
+			ctyp := class.Typ.(*data.Class)
+			keys := ctyp.Instance.Keys()
+
+			var idx int64 //store the index of the class' field
+
+			for k, v := range keys {
+				if v.(string) == sub {
+					idx = int64(k)
+					break
+				}
+			}
+
+			//use GEP to fetch the field
+			inst := block.NewGetElementPtr(
+				ctyp.SType,
+				class.FetchAssig().LLVal(block),
+				constant.NewInt(types.I32, 0),
+				constant.NewInt(types.I32, idx),
+			)
+
+			return data.NewInstruction(inst)
+		}
+
+		return nil
 	})
 
 	compiler.OperationStore.NewOperation("()", "func", "fncallb", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
@@ -71,6 +102,12 @@ func initDefaultOps(compiler *ast.Compiler) {
 		return data.NewInstruction(
 			block.NewCall(class.Construct.Parent, args...),
 		)
+	})
+
+	compiler.OperationStore.NewOperation("=", "ptr", "*", func(left, right data.Value, compiler *ast.Compiler, block *ir.Block) data.Value {
+		ptr := left.LLVal(block)
+		block.NewStore(right.LLVal(block), ptr)
+		return nil
 	})
 
 }

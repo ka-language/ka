@@ -1,6 +1,7 @@
 package compiler
 
 import (
+	"github.com/emirpasic/gods/maps/linkedhashmap"
 	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/ast"
 	"github.com/tusklang/tusk/data"
@@ -13,7 +14,7 @@ func compileClass(compiler *ast.Compiler, f *initialize.File, ipack *initialize.
 	tc := data.NewClass(f.Name, stype, pack) //create the class in tusk
 
 	//init the instance and static maps
-	tc.Instance = make(map[string]*data.Variable)
+	tc.Instance = linkedhashmap.New()
 	tc.Static = make(map[string]*data.Variable)
 
 	f.StructType = stype

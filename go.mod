@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/dlclark/regexp2 v1.4.0
+	github.com/emirpasic/gods v1.12.0
 	github.com/llir/llvm v0.3.4
 	golang.org/x/mod v0.5.0 // indirect
 	golang.org/x/sys v0.0.0-20210902050250-f475640dd07b // indirect

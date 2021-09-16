@@ -8,14 +8,14 @@ import (
 
 type Variable struct {
 	inst            Value
-	typ             *Type
+	Typ             Type
 	UnReferenceable bool
 }
 
-func NewVariable(inst Value, typ *Type, unReferenceable bool) *Variable {
+func NewVariable(inst Value, typ Type, unReferenceable bool) *Variable {
 	return &Variable{
 		inst:            inst,
-		typ:             typ,
+		Typ:             typ,
 		UnReferenceable: unReferenceable,
 	}
 }
@@ -25,13 +25,13 @@ func (v *Variable) FetchAssig() Value {
 }
 
 func (v *Variable) LLVal(block *ir.Block) value.Value {
-	return block.NewLoad(v.typ.Type(), v.inst.LLVal(block))
+	return block.NewLoad(v.Type(), v.inst.LLVal(block))
 }
 
 func (v *Variable) Type() types.Type {
-	return v.typ.Type()
+	return v.Typ.Type()
 }
 
 func (v *Variable) TypeString() string {
-	return v.typ.TypeString()
+	return v.Typ.TypeString()
 }
