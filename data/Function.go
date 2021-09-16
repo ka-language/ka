@@ -9,13 +9,13 @@ import (
 
 type Function struct {
 	llfunc *ir.Func
-	ftype  types.Type
+	FTyp   types.Type
 }
 
 func NewFunc(f *ir.Func) *Function {
 	return &Function{
 		llfunc: f,
-		ftype:  f.Type(),
+		FTyp:   f.Type(),
 	}
 }
 
@@ -24,11 +24,11 @@ func (f *Function) LLVal(block *ir.Block) value.Value {
 }
 
 func (f *Function) Default() constant.Constant {
-	return constant.NewNull(types.NewPointer(f.ftype))
+	return constant.NewNull(types.NewPointer(f.FTyp))
 }
 
 func (f *Function) Type() types.Type {
-	return f.llfunc.Type()
+	return f.FTyp
 }
 
 func (f *Function) TypeString() string {

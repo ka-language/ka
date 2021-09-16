@@ -7,7 +7,8 @@ import (
 )
 
 type Instruction struct {
-	val value.Value
+	val  value.Value
+	ETyp Type
 }
 
 func NewInstruction(i value.Value) *Instruction {
@@ -21,9 +22,17 @@ func (i *Instruction) LLVal(block *ir.Block) value.Value {
 }
 
 func (i *Instruction) Type() types.Type {
+	if i.ETyp != nil {
+		return i.ETyp.Type()
+	}
 	return i.val.Type()
 }
 
 func (i *Instruction) TypeString() string {
+
+	if i.ETyp != nil {
+		return i.ETyp.TypeString()
+	}
+
 	return i.Type().LLString()
 }

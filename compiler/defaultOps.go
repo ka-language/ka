@@ -49,7 +49,7 @@ func initDefaultOps(compiler *ast.Compiler) {
 			ctyp := class.Typ.(*data.Class)
 			keys := ctyp.Instance.Keys()
 
-			var idx int64 //store the index of the class' field
+			var idx int64 = -1 //store the index of the class' field
 
 			for k, v := range keys {
 				if v.(string) == sub {
@@ -58,15 +58,28 @@ func initDefaultOps(compiler *ast.Compiler) {
 				}
 			}
 
+			if idx == -1 {
+				//error
+			}
+
 			//use GEP to fetch the field
-			inst := block.NewGetElementPtr(
+			gepInst := block.NewGetElementPtr(
 				ctyp.SType,
 				class.FetchAssig().LLVal(block),
 				constant.NewInt(types.I32, 0),
 				constant.NewInt(types.I32, idx),
 			)
 
-			return data.NewInstruction(inst)
+			fetchedVal, _ := ctyp.Instance.Get(sub)
+			valtyp := fetchedVal.(*data.Variable).Typ
+
+			//load the variable from the struct
+			loadInst := block.NewLoad(valtyp.Type(), gepInst)
+
+			tinst := data.NewInstruction(loadInst)
+			tinst.ETyp = valtyp
+
+			return tinst
 		}
 
 		return nil
