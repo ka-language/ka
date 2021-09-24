@@ -3,9 +3,6 @@ package ast
 import (
 	"errors"
 
-	"github.com/llir/llvm/ir"
-	"github.com/llir/llvm/ir/types"
-	"github.com/tusklang/tusk/data"
 	"github.com/tusklang/tusk/tokenizer"
 )
 
@@ -80,36 +77,4 @@ func (f *Function) Parse(lex []tokenizer.Token, i *int) (e error) {
 	}
 
 	return nil
-}
-
-func (f *Function) Compile(compiler *Compiler, class *data.Class, node *ASTNode, block *ir.Block) data.Value {
-	var rt types.Type = types.Void //defaults to void
-
-	if f.RetType != nil {
-		rt = f.RetType.Group.Compile(compiler, class, f.RetType, block).Type()
-	}
-
-	var params = make([]*ir.Param, len(f.Params))
-
-	for k, v := range f.Params {
-		params[k] = ir.NewParam(
-			v.Name,
-			v.Type.Group.Compile(compiler, class, v.Type, block).Type(),
-		)
-	}
-
-	rf := compiler.Module.NewFunc(compiler.TmpVar(), rt, params...)
-
-	if f.Body != nil {
-		fblock := rf.NewBlock("")
-		f.Body.Compile(compiler, class, nil, fblock)
-
-		//if there is no return type (void) append a `return void`
-		if f.RetType == nil {
-			fblock.NewRet(nil)
-		}
-	}
-
-	//if no body was provided, the function was being used as a type
-	return data.NewFunc(rf)
 }

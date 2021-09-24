@@ -1,16 +1,16 @@
 package initialize
 
-type Package struct {
+type Directory struct {
 	Name   string
-	Files  []*File
-	parent *Package
+	Nested []FSObj
+	parent *Directory
 }
 
-func (p Package) Parent() *Package {
+func (p *Directory) Parent() FSObj {
 	return p.parent
 }
 
-func (p Package) FullName() string {
+func (p Directory) FullName() string {
 	//returns the full name, with all the parents
 	if p.parent == nil {
 		return p.Name

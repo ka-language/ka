@@ -30,5 +30,10 @@ func parseFile(name string) (*File, error) {
 
 	fetchGlobals(generatedAST, &retf, 2, false)
 
+	//process variables
+	varprocessor := NewProcessor()
+	varprocessor.ProcessVars(&retf)
+	///////////////////
+
 	return &retf, nil
 }

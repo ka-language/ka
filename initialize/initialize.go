@@ -29,9 +29,14 @@ func Initialize(configFileName string) *Program {
 
 	prog.Config = config
 
-	var startpkg Package
+	//the starting package to store everything
+	var startpack = &Directory{
+		Name: "tusk",
+	}
 
-	parsePackage(".", &startpkg, &prog)
+	parseDirectory(".", startpack)
+
+	prog.Nested = startpack.Nested
 
 	return &prog
 }

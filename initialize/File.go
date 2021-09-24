@@ -1,7 +1,6 @@
 package initialize
 
 import (
-	"github.com/llir/llvm/ir/types"
 	"github.com/tusklang/tusk/ast"
 )
 
@@ -21,6 +20,11 @@ type GlobalDecl struct {
 type File struct {
 	Name        string
 	Globals     []GlobalDecl
-	StructType  *types.StructType
 	Constructor *ast.Construct
+
+	pkg *Directory //parent package
+}
+
+func (f *File) Parent() FSObj {
+	return f.pkg
 }

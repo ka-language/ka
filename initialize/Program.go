@@ -1,6 +1,6 @@
 package initialize
 
 type Program struct {
-	Packages []*Package
-	Config   ConfigData
+	Nested []FSObj
+	Config ConfigData
 }
